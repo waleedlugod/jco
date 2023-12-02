@@ -174,22 +174,44 @@ class SeamCarver(Picture):
         '''
         Remove a vertical seam from the picture
         '''
+        if len(seam) != self._height or self._width <= 1: raise SeamError
+        # Raise error if seam differs by more than 1
+        for col in range(len(seam) - 1):
+            if abs(seam[col] - seam[col+1]) > 1: raise SeamError
+
+        # shifts pixels right of seam and deletes last pixel
         for row in range(len(seam)):
-            del self[seam[row], row]
-            del self[self.width() - 1, row]
+            for col in range(seam[row], self._width - 1):
+                self[col, row] = self[col+1, row]
+            del self[self._width-1, row]
+        self._width -= 1
         return
 
     def remove_horizontal_seam(self, seam: list[int]):
         '''
         Remove a horizontal seam from the picture
         '''
-        # Flip image
-        for x, y in self.keys():
-            self[x, y], self[y, x] = self[y, x], self[x, y]
-        self.remove_vertical_seam(seam[::-1])
-        # Flip image back
-        for x, y in self.keys():
-            self[x, y], self[y, x] = self[y, x], self[x, y]
+        if len(seam) != self._width or self._height <= 1: raise SeamError
+        for row in range(len(seam) - 1):
+            if abs(seam[row] - seam[row+1]) > 1: raise SeamError
+
+        self.flip_image()
+        self.remove_vertical_seam(seam)
+        self.flip_image()
+        return
+    def flip_image(self):
+        swapped = set()
+        for col in range(self._width):
+            for row in range(self._height):
+                if (col, row) not in swapped and (row, col) not in swapped:
+                    if (col, row) not in self: self[col, row] = None
+                    if (row, col) not in self: self[row, col] = None
+                    self[col, row], self[row, col] = self[row, col], self[col, row]
+                    if self[col, row] is None: del self[col, row]
+                    if self[row, col] is None: del self[row, col]
+                    swapped.add((col, row))
+                    swapped.add((row, col))
+        self._width, self._height = self._height, self._width
         return
 
 class SeamError(Exception):
