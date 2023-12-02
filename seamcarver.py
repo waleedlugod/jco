@@ -186,8 +186,7 @@ class SeamCarver(Picture):
         # Flip image
         for x, y in self.keys():
             self[x, y], self[y, x] = self[y, x], self[x, y]
-        # NOTE: possibly need to reverse seam if error
-        self.remove_vertical_seam(seam)
+        self.remove_vertical_seam(seam[::-1])
         # Flip image back
         for x, y in self.keys():
             self[x, y], self[y, x] = self[y, x], self[x, y]
