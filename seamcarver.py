@@ -1,13 +1,37 @@
 #!/usr/bin/env python3
 
 from picture import Picture
+import math
 
 class SeamCarver(Picture):
     ## TO-DO: fill in the methods below
     def energy(self, i: int, j: int) -> float:
-        '''
-        Return the energy of pixel at column i and row j
-        '''
+        
+        energy_x = 0
+        energy_y = 0
+        
+        for x in range(3):
+            if i == self.width()-1:
+                energy_x += (self[0, j][x]-self[i-1, j][x])**2
+            elif i == 0:
+                energy_x += (self[self.width()-1, j][x]-self[i+1, j][x])**2
+            else:
+                energy_x += (self[i-1, j][x]-self[i+1, j][x])**2
+        
+        for x in range(3):
+            if j == self.height()-1:
+                energy_y += (self[i, 0][x]-self[i, j-1][x])**2
+            elif j == 0:
+                energy_y += (self[i, self.height()-1][x]-self[i, j+1][x])**2
+            else:
+                energy_y += (self[i, j+1][x]-self[i, j-1][x])**2
+        
+        energy = math.sqrt(energy_y + energy_x)
+        energy_x = 0
+        energy_y = 0
+        
+        return energy
+    
         raise NotImplementedError
 
     def find_vertical_seam(self) -> list[int]:
