@@ -183,7 +183,14 @@ class SeamCarver(Picture):
         '''
         Remove a horizontal seam from the picture
         '''
-        raise NotImplementedError
+        # Flip image
+        for x, y in self.keys():
+            self[x, y], self[y, x] = self[y, x], self[x, y]
+        self.remove_vertical_seam(seam)
+        # Flip image back
+        for x, y in self.keys():
+            self[x, y], self[y, x] = self[y, x], self[x, y]
+        return
 
 class SeamError(Exception):
     pass
