@@ -99,76 +99,16 @@ class SeamCarver(Picture):
                 
         vseam.reverse()
         return vseam
-                
-        raise NotImplementedError
-    
 
     def find_horizontal_seam(self) -> list[int]:
         '''
         Return a sequence of indices representing the lowest-energy
         horizontal seam
         '''
-        
-        # CONSTRUCT A (REVERSED) MEMO TABLE
-        memo_tbl = [[0 for j in range(self.height())] for i in range(self.width())]		#format is memo_tbl[col][row]
-        for i in range(self.height()):
-            memo_tbl[0][i] = self.energy(0, i)
-            
-        for j in range(1, self.width()):
-            for i in range(self.height()):
-                if i == self.height()-1:
-                    memo_tbl[j][i] = self.energy(j, i) + min(memo_tbl[j-1][i-1], memo_tbl[j-1][i])
-                elif i == 0:
-                    memo_tbl[j][i] = self.energy(j, i) + min(memo_tbl[j-1][i], memo_tbl[j-1][i+1])
-                else:
-                    memo_tbl[j][i] = self.energy(j, i) + min(memo_tbl[j-1][i-1], memo_tbl[j-1][i], memo_tbl[j-1][i+1])
-                
-        # FIND THE HORIZONTAL SEAM
-        # First find the index of the minimum energy at the last row
-        hseam = [-1]
-        min_energy = 2**63 -1
-        for i in range(self.height()):
-            if memo_tbl[self.width()-1][i] < min_energy:
-                min_energy = memo_tbl[self.width()-1][i]
-                hseam[0] = i
-                
-        # Then trace your way up
-        for j in range(self.width()-2, -1, -1):
-            current_row = hseam[len(hseam)-1]
-            
-            if current_row == self.height()-1:
-                min_energy = min(memo_tbl[j][current_row-1], memo_tbl[j][current_row])
-                
-                if memo_tbl[j][current_row-1] == min_energy:
-                    hseam.append(current_row-1)
-                else:
-                    hseam.append(current_row)
-                    
-            elif current_row == 0:
-                min_energy = min(memo_tbl[j][current_row], memo_tbl[j][current_row+1])
-                
-                if memo_tbl[j][current_row] == min_energy:
-                    hseam.append(current_row)
-                else:
-                    hseam.append(current_row+1)
-            
-            else:
-                min_energy = min(memo_tbl[j][current_row-1], memo_tbl[j][current_row], memo_tbl[j][current_row+1])
-            
-                if memo_tbl[j][current_row-1] == min_energy:
-                    hseam.append(current_row-1)
-                elif memo_tbl[j][current_row] == min_energy:
-                    hseam.append(current_row)
-                else:
-                    hseam.append(current_row+1)
-                
-        hseam.reverse()
+        self.flip_image()
+        hseam = self.find_vertical_seam()
+        self.flip_image()
         return hseam
-        
-        
-        
-        
-        raise NotImplementedError
 
     def remove_vertical_seam(self, seam: list[int]):
         '''
@@ -199,7 +139,11 @@ class SeamCarver(Picture):
         self.remove_vertical_seam(seam)
         self.flip_image()
         return
+
     def flip_image(self):
+        '''
+        Flip the image
+        '''
         swapped = set()
         for col in range(self._width):
             for row in range(self._height):
