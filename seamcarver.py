@@ -51,9 +51,9 @@ class SeamCarver(Picture):
             
         for row in range(1, self.height()):			#row
             for col in range(self.width()):			#co1
-                if i == self.width()-1:
+                if col == self.width()-1:
                     memo_tbl[row][col] = self.energy(col, row) + min(memo_tbl[row-1][col-1], memo_tbl[row-1][col])
-                elif i == 0:
+                elif col == 0:
                     memo_tbl[row][col] = self.energy(col, row) + min(memo_tbl[row-1][col], memo_tbl[row-1][col+1])
                 else:
                     memo_tbl[row][col] = self.energy(col, row) + min(memo_tbl[row-1][col-1], memo_tbl[row-1][col], memo_tbl[row-1][col+1])
