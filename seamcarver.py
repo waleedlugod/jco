@@ -45,18 +45,18 @@ class SeamCarver(Picture):
         vertical seam
         '''
         # CONSTRUCT THE MEMO TABLE
-        memo_tbl = [[0 for i in range(self.width())] for j in range(self.height())]		#format is memo_tbl[col][row]
+        memo_tbl = [[0 for i in range(self.width())] for j in range(self.height())]		#format for accessing an element is: memo_tbl[row][col]
         for i in range(self.width()):
             memo_tbl[0][i] = self.energy(i, 0)
             
-        for col in range(1, self.height()):			#row
-            for row in range(self.width()):			#com
+        for row in range(1, self.height()):			#row
+            for col in range(self.width()):			#co1
                 if i == self.width()-1:
-                    memo_tbl[col][row] = self.energy(row, col) + min(memo_tbl[col-1][row-1], memo_tbl[col-1][row])
+                    memo_tbl[row][col] = self.energy(col, row) + min(memo_tbl[row-1][col-1], memo_tbl[row-1][col])
                 elif i == 0:
-                    memo_tbl[col][row] = self.energy(row, col) + min(memo_tbl[col-1][row], memo_tbl[col-1][row+1])
+                    memo_tbl[row][col] = self.energy(col, row) + min(memo_tbl[row-1][col], memo_tbl[row-1][col+1])
                 else:
-                    memo_tbl[col][row] = self.energy(row, col) + min(memo_tbl[col-1][row-1], memo_tbl[col-1][row], memo_tbl[col-1][row+1])
+                    memo_tbl[row][col] = self.energy(col, row) + min(memo_tbl[row-1][col-1], memo_tbl[row-1][col], memo_tbl[row-1][col+1])
                 
         # FIND THE VERTICAL SEAM (2 steps)
         # 1. Find the index of the minimum energy at the last row
@@ -68,34 +68,34 @@ class SeamCarver(Picture):
                 vseam[0] = i
                 
         # 2. Trace your way up
-        for j in range(self.height()-1, -1, -1):
-            current_row = vseam[len(vseam)-1]
+        for j in range(self.height()-1, 0, -1):
+            current_col = vseam[len(vseam)-1]
             
-            if current_row == self.width()-1:
-                min_energy = min(memo_tbl[j][current_row-1], memo_tbl[j][current_row])
+            if current_col == self.width()-1:
+                min_energy = min(memo_tbl[j-1][current_col-1], memo_tbl[j-1][current_col])
                 
-                if memo_tbl[j][current_row-1] == min_energy:
-                    vseam.append(current_row-1)
+                if memo_tbl[j-1][current_col-1] == min_energy:
+                    vseam.append(current_col-1)
                 else:
-                    vseam.append(current_row)
+                    vseam.append(current_col)
                     
-            elif current_row == 0:
-                min_energy = min(memo_tbl[j][current_row], memo_tbl[j][current_row+1])
+            elif current_col == 0:
+                min_energy = min(memo_tbl[j-1][current_col], memo_tbl[j-1][current_col+1])
                 
-                if memo_tbl[j][current_row] == min_energy:
-                    vseam.append(current_row)
+                if memo_tbl[j-1][current_col] == min_energy:
+                    vseam.append(current_col)
                 else:
-                    vseam.append(current_row+1)
+                    vseam.append(current_col+1)
             
             else:
-                min_energy = min(memo_tbl[j][current_row-1], memo_tbl[j][current_row], memo_tbl[j][current_row+1])
+                min_energy = min(memo_tbl[j-1][current_col-1], memo_tbl[j-1][current_col], memo_tbl[j-1][current_col+1])
             
-                if memo_tbl[j][current_row-1] == min_energy:
-                    vseam.append(current_row-1)
-                elif memo_tbl[j][current_row] == min_energy:
-                    vseam.append(current_row)
+                if memo_tbl[j-1][current_col-1] == min_energy:
+                    vseam.append(current_col-1)
+                elif memo_tbl[j-1][current_col] == min_energy:
+                    vseam.append(current_col)
                 else:
-                    vseam.append(current_row+1)
+                    vseam.append(current_col+1)
                 
         vseam.reverse()
         return vseam
@@ -133,7 +133,7 @@ class SeamCarver(Picture):
                 hseam[0] = i
                 
         # Then trace your way up
-        for j in range(self.width()-1, -1, -1):
+        for j in range(self.width()-2, -1, -1):
             current_row = hseam[len(hseam)-1]
             
             if current_row == self.height()-1:
